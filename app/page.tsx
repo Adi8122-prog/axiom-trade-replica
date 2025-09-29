@@ -2,6 +2,8 @@
 import { useState, useEffect, useMemo, FC, SVGProps } from 'react';
 
 // Type Definitions
+type Tab = 'new' | 'stretch' | 'migrated';
+
 type Token = {
   id: number,
   name: string,
@@ -31,14 +33,6 @@ const StarIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-const InfoIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <line x1="12" y1="16" x2="12" y2="12" />
-    <line x1="12" y1="8" x2="12.01" y2="8" />
-  </svg>
-);
-
 const BaseIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
         <circle cx="12" cy="12" r="11" stroke="#0052FF" strokeWidth="2"/>
@@ -61,7 +55,6 @@ const EthereumIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 const generateMockData = (count: number): Token[] => {
   const tokens: Token[] = [];
   const names = ['Token A', 'Token B', 'Token C', 'Token D', 'Token E', 'Token F', 'Token G', 'Token H', 'Token I', 'Token J', 'Token K', 'Token L'];
-  const symbols = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(i => 'TKN' + i);
 
   for (let i = 1; i <= count; i++) {
     tokens.push({
@@ -182,7 +175,7 @@ const TokenTable = ({ tokens, loading, sortConfig, requestSort }: { tokens: Toke
 
 
 export default function Page() {
-    const [activeTab, setActiveTab] = useState<'new' | 'stretch' | 'migrated'>('stretch');
+    const [activeTab, setActiveTab] = useState<Tab>('stretch');
     const [allTokens, setAllTokens] = useState<Token[]>([]);
     const [loading, setLoading] = useState(true);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'fdv', direction: 'descending' });
@@ -226,10 +219,13 @@ export default function Page() {
 
         const sortableTokens = [...allTokens];
         sortableTokens.sort((a, b) => {
-            if (a[sortConfig.key!] < b[sortConfig.key!]) {
+            const aValue = a[sortConfig.key!];
+            const bValue = b[sortConfig.key!];
+
+            if (aValue < bValue) {
                 return sortConfig.direction === 'ascending' ? -1 : 1;
             }
-            if (a[sortConfig.key!] > b[sortConfig.key!]) {
+            if (aValue > bValue) {
                 return sortConfig.direction === 'ascending' ? 1 : -1;
             }
             return 0;
@@ -243,7 +239,7 @@ export default function Page() {
     }, [sortedTokens, activeTab]);
 
 
-    const TABS = [
+    const TABS: { id: Tab, label: string, count: number }[] = [
         { id: 'new', label: 'New pairs', count: 15 },
         { id: 'stretch', label: 'Final Stretch', count: 10 },
         { id: 'migrated', label: 'Migrated', count: 5 },
@@ -263,7 +259,7 @@ export default function Page() {
                             {TABS.map(tab => (
                                 <button
                                     key={tab.id}
-                                    onClick={() => setActiveTab(tab.id as any)}
+                                    onClick={() => setActiveTab(tab.id)}
                                     className={`px-3 py-2 text-sm font-medium rounded-md flex items-center space-x-2 ${
                                         activeTab === tab.id
                                             ? 'bg-gray-700 text-white'
@@ -296,4 +292,5 @@ export default function Page() {
         </div>
     );
 }
+
 
